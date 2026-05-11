@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixly - Book Appointment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+</head>
+<body class="bg-gray-50 m-0 p-0 font-sans antialiased min-h-screen pb-24 relative">
+  <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 z-10">
+    <button onclick="window.history.back()" class="p-2 -ml-2 hover:bg-gray-100 rounded-full transition">
+      <i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i>
+    </button>
+    <h1 class="text-lg font-semibold text-gray-900">Book Appointment</h1>
+  </div>
+
+  <div class="px-6 py-6">
+    <div class="mb-8">
+      <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="calendar" class="w-5 h-5 text-teal-600"></i>
+        <h2 class="text-lg font-semibold text-gray-900">Select Date</h2>
+      </div>
+      <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" id="booking-dates"></div>
+    </div>
+
+    <div id="booking-time-section" class="mb-8 hidden">
+      <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="clock" class="w-5 h-5 text-teal-600"></i>
+        <h2 class="text-lg font-semibold text-gray-900">Select Time</h2>
+      </div>
+      <div class="grid grid-cols-3 gap-3" id="booking-times"></div>
+    </div>
+
+    <div id="booking-address-section" class="mb-8 hidden">
+      <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="map-pin" class="w-5 h-5 text-teal-600"></i>
+        <h2 class="text-lg font-semibold text-gray-900">Service Address</h2>
+      </div>
+      <div class="mui-textfield">
+        <textarea id="booking-address-input" rows="3" placeholder="Enter your complete address">Flat 402, Srinivasa Heights, Vijayawada, Andhra Pradesh, India</textarea>
+      </div>
+      <button class="mt-3 text-teal-600 text-sm font-medium flex items-center gap-1 hover:underline">
+        <i data-lucide="map-pin" class="w-4 h-4"></i>
+        Use current location
+      </button>
+    </div>
+
+    <div id="booking-live-summary" class="bg-teal-50 border border-teal-200 rounded-2xl p-5 hidden">
+      <h3 class="font-semibold text-teal-900 mb-3">Booking Summary</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-teal-700">Date:</span>
+          <span class="font-medium text-teal-900" id="live-summary-date"></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-teal-700">Time:</span>
+          <span class="font-medium text-teal-900" id="live-summary-time"></span>
+        </div>
+        <div class="flex justify-between items-start">
+          <span class="text-teal-700">Location:</span>
+          <span class="font-medium text-teal-900 text-right max-w-[200px]" id="live-summary-address"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 z-50">
+    <button id="booking-continue-btn" disabled class="w-full bg-[#0d9488] hover:bg-[#0f766e] disabled:bg-[#d1d5db] disabled:text-[#9ca3af] text-white rounded-xl p-[14px] text-[16px] font-semibold transition-colors shadow-md">
+      Select a Date
+    </button>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    let selectedDate = null;
+    let selectedTime = null;
+    let address = 'Flat 402, Srinivasa Heights, Vijayawada, Andhra Pradesh, India';
+
+    function renderBooking() {
+      const datesHtml = DATA.dates.map(d => {
+        const dateStr = `${d.day}, ${d.month} ${d.date}`;
+        const isSelected = selectedDate === dateStr;
+        const bgClass = isSelected ? 'border-teal-600 bg-teal-50' : (d.available ? 'border-gray-200 bg-white hover:border-teal-300' : 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed');
+        const textClass = isSelected ? 'text-teal-600' : 'text-gray-900';
+        
+        return `
+          <button onclick="if(${d.available}){ selectedDate = '${dateStr}'; renderBooking(); }" class="flex-shrink-0 w-20 py-4 px-3 rounded-2xl border-2 transition ${bgClass}">
+            <div class="text-center">
+              <p class="text-sm text-gray-500 mb-1">${d.day}</p>
+              <p class="text-2xl font-bold ${textClass}">${d.date}</p>
+              <p class="text-xs text-gray-400 mt-1">${d.month}</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+      document.getElementById('booking-dates').innerHTML = datesHtml;
+
+      const timesHtml = DATA.times.map(t => {
+        const isSelected = selectedTime === t.time;
+        const bgClass = isSelected ? 'border-teal-600 bg-teal-50 text-teal-600' : (t.available ? 'border-gray-200 bg-white text-gray-700 hover:border-teal-300' : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed');
+        
+        return `
+          <button onclick="if(${t.available}){ selectedTime = '${t.time}'; renderBooking(); }" class="py-3 px-4 rounded-xl border-2 transition text-sm font-medium ${bgClass}">
+            ${t.time}
+          </button>
+        `;
+      }).join('');
+      document.getElementById('booking-times').innerHTML = timesHtml;
+
+      const timeSec = document.getElementById('booking-time-section');
+      const addrSec = document.getElementById('booking-address-section');
+      const sumSec = document.getElementById('booking-live-summary');
+      const btn = document.getElementById('booking-continue-btn');
+
+      if (selectedDate) timeSec.classList.remove('hidden');
+      else timeSec.classList.add('hidden');
+
+      if (selectedDate && selectedTime) {
+        addrSec.classList.remove('hidden');
+        document.getElementById('booking-address-input').value = address;
+      } else {
+        addrSec.classList.add('hidden');
+      }
+
+      if (selectedDate && selectedTime && address) {
+        sumSec.classList.remove('hidden');
+        document.getElementById('live-summary-date').innerText = selectedDate;
+        document.getElementById('live-summary-time').innerText = selectedTime;
+        document.getElementById('live-summary-address').innerText = address;
+      } else {
+        sumSec.classList.add('hidden');
+      }
+
+      if(!selectedDate) {
+        btn.innerText = 'Select a Date'; btn.disabled = true;
+      } else if(!selectedTime) {
+        btn.innerText = 'Select a Time'; btn.disabled = true;
+      } else if(!address) {
+        btn.innerText = 'Add Address'; btn.disabled = true;
+      } else {
+        btn.innerText = 'Continue to Summary'; btn.disabled = false;
+      }
+    }
+
+    document.getElementById('booking-address-input').oninput = (e) => {
+      address = e.target.value;
+      renderBooking();
+    };
+
+    document.getElementById('booking-continue-btn').onclick = () => {
+      if (selectedDate && selectedTime && address) {
+        localStorage.setItem('bookingDate', selectedDate);
+        localStorage.setItem('bookingTime', selectedTime);
+        localStorage.setItem('bookingAddress', address);
+        window.location.href = 'summary.html?serviceId=' + getQueryParam('serviceId');
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', renderBooking);
+  </script>
+</body>
+</html>

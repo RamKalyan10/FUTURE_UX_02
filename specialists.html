@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixly - Specialists</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+</head>
+<body class="bg-gray-50 m-0 p-0 font-sans antialiased min-h-screen pb-24 relative">
+  <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 z-10">
+    <button onclick="window.history.back()" class="p-2 -ml-2 hover:bg-gray-100 rounded-full transition">
+      <i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i>
+    </button>
+    <h1 class="text-lg font-semibold text-gray-900">Select Specialist</h1>
+  </div>
+
+  <div class="px-6 py-6">
+    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+      <p class="text-blue-900 text-sm">
+        💡 <span class="font-semibold">Pro Tip:</span> Choose specialists with higher ratings and more completed jobs for the best experience
+      </p>
+    </div>
+
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">Available Specialists</h2>
+      <span class="text-sm text-gray-500" id="specialists-count">0 found</span>
+    </div>
+
+    <div class="space-y-4" id="specialists-list">
+      <!-- Injected via JS -->
+    </div>
+  </div>
+
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 z-50">
+    <button id="specialists-continue-btn" disabled class="w-full bg-[#0d9488] hover:bg-[#0f766e] disabled:bg-[#d1d5db] disabled:text-[#9ca3af] text-white rounded-xl p-[14px] text-[16px] font-semibold transition-colors shadow-md">
+      Select a Specialist
+    </button>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    let selectedSpecialistId = null;
+
+    function renderSpecialists() {
+      document.getElementById('specialists-count').innerText = `${DATA.specialists.length} found`;
+      
+      const html = DATA.specialists.map(sp => {
+        const isSelected = selectedSpecialistId === sp.id;
+        const borderClass = isSelected ? 'border-2 border-teal-600' : 'border-2 border-transparent border border-gray-100';
+        const opacityClass = sp.available ? 'opacity-100' : 'opacity-60 cursor-not-allowed';
+        const badgeHtml = sp.available ? 
+          `<span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-md text-[12px] font-medium">Available</span>` : 
+          `<span class="bg-red-100 text-red-600 px-2.5 py-1 rounded-md text-[12px] font-medium">Busy</span>`;
+
+        return `
+          <div onclick="if(${sp.available}){ selectedSpecialistId = ${sp.id}; renderSpecialists(); }" class="bg-white rounded-2xl p-4 shadow-sm hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition cursor-pointer ${borderClass} ${opacityClass}">
+            <div class="flex gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-20 h-20 bg-gradient-to-br from-teal-100 to-blue-100 rounded-2xl flex items-center justify-center text-4xl">
+                  ${sp.avatar}
+                </div>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-start justify-between mb-2">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <h3 class="font-semibold text-gray-900">${sp.name}</h3>
+                      ${sp.verified ? `<i data-lucide="badge-check" class="w-5 h-5 text-blue-500 fill-blue-100"></i>` : ''}
+                    </div>
+                    <p class="text-sm text-gray-600">${sp.specialty}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="flex items-center gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-500 fill-yellow-500"></i>
+                    <span class="font-semibold text-sm">${sp.rating}</span>
+                    <span class="text-gray-400 text-sm">(${sp.reviews})</span>
+                  </div>
+                  <span class="text-gray-300">•</span>
+                  <div class="flex items-center gap-1">
+                    <i data-lucide="award" class="w-4 h-4 text-gray-400"></i>
+                    <span class="text-sm text-gray-600">${sp.experience}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 mb-3 flex-wrap">
+                  <span class="bg-teal-50 text-teal-600 px-2.5 py-1 rounded-md text-[12px] font-medium">${sp.jobsCompleted} jobs completed</span>
+                  ${badgeHtml}
+                </div>
+                <div class="flex items-center gap-1 text-gray-500">
+                  <i data-lucide="map-pin" class="w-4 h-4"></i>
+                  <span class="text-sm">${sp.distance}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('specialists-list').innerHTML = html;
+      lucide.createIcons();
+
+      const btn = document.getElementById('specialists-continue-btn');
+      btn.disabled = !selectedSpecialistId;
+      btn.innerText = selectedSpecialistId ? 'Continue to Booking' : 'Select a Specialist';
+    }
+
+    document.getElementById('specialists-continue-btn').onclick = () => {
+      if (selectedSpecialistId) {
+        localStorage.setItem('selectedSpecialistId', selectedSpecialistId);
+        window.location.href = 'booking.html?specialistId=' + selectedSpecialistId + '&serviceId=' + getQueryParam('serviceId');
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', renderSpecialists);
+  </script>
+</body>
+</html>

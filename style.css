@@ -1,0 +1,50 @@
+/* Common styles used across all pages */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* MUI Component Overrides & Mimics */
+.mui-textfield {
+  width: 100%;
+  position: relative;
+}
+.mui-textfield input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 14px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.mui-textfield input:focus {
+  border-color: #0d9488;
+  box-shadow: inset 0 0 0 1px #0d9488;
+}
+.mui-textfield textarea {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 14px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.mui-textfield textarea:focus {
+  border-color: #0d9488;
+  box-shadow: inset 0 0 0 1px #0d9488;
+}
+.mui-textfield label {
+  position: absolute;
+  left: 14px;
+  top: -10px;
+  background: white;
+  padding: 0 4px;
+  font-size: 12px;
+  color: #6b7280;
+}

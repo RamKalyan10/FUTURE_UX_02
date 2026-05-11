@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixly - Service Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+</head>
+<body class="bg-white m-0 p-0 font-sans antialiased min-h-screen pb-20 relative">
+  <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 z-10">
+    <button onclick="window.history.back()" class="p-2 -ml-2 hover:bg-gray-100 rounded-full transition">
+      <i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i>
+    </button>
+    <h1 class="text-lg font-semibold text-gray-900">Service Details</h1>
+  </div>
+
+  <div class="px-6 py-6" id="service-details-content">
+    <!-- Injected via JS -->
+  </div>
+
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 z-50">
+    <button id="service-details-continue-btn" class="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-xl p-[14px] text-[16px] font-semibold transition-colors shadow-md">
+      Select Specialist
+    </button>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const serviceId = getQueryParam('id') || 'cleaning';
+      const s = DATA.serviceDetails[serviceId] || DATA.serviceDetails['cleaning'];
+      
+      document.getElementById('service-details-content').innerHTML = `
+        <div class="bg-gradient-to-br from-teal-100 to-blue-100 rounded-3xl h-56 mb-6 flex items-center justify-center">
+          <div class="text-6xl">🔧</div>
+        </div>
+
+        <div class="mb-6">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900 mb-2">${s.name}</h2>
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-1">
+                  <i data-lucide="star" class="w-5 h-5 text-yellow-500 fill-yellow-500"></i>
+                  <span class="font-semibold text-gray-900">${s.rating}</span>
+                  <span class="text-gray-500">(${s.reviews} reviews)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mb-6">
+            <div class="bg-gray-100 px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 font-medium text-gray-700">
+              <i data-lucide="clock" class="w-4 h-4"></i> ${s.duration}
+            </div>
+            <div class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 font-medium">
+              <i data-lucide="shield" class="w-4 h-4"></i> Verified
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">About Service</h3>
+          <p class="text-gray-600 leading-relaxed">${s.desc}</p>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">What's Included</h3>
+          <div class="space-y-3">
+            ${s.features.map(f => `
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="check-circle" class="w-4 h-4 text-teal-600"></i>
+                </div>
+                <span class="text-gray-700">${f}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-gray-600">Starting from</span>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-teal-600">₹${s.price}</p>
+              <p class="text-sm text-gray-500">Per service</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('service-details-continue-btn').onclick = () => {
+        window.location.href = `specialists.html?serviceId=${serviceId}`;
+      };
+
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

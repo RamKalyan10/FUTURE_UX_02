@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixly - Notifications</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+</head>
+<body class="bg-gray-50 m-0 p-0 font-sans antialiased min-h-screen relative">
+  <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 z-10">
+    <button onclick="window.history.back()" class="p-2 -ml-2 hover:bg-gray-100 rounded-full transition">
+      <i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i>
+    </button>
+    <h1 class="text-lg font-semibold text-gray-900">Notifications</h1>
+  </div>
+
+  <div class="px-6 py-6" id="notifications-list">
+    <!-- Injected via JS -->
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!DATA.notifications || DATA.notifications.length === 0) {
+        document.getElementById('notifications-list').innerHTML = `
+          <div class="flex flex-col items-center justify-center mt-20 text-gray-400">
+            <i data-lucide="bell-off" class="w-16 h-16 mb-4"></i>
+            <p>No new notifications</p>
+          </div>
+        `;
+      } else {
+        const html = DATA.notifications.map(n => `
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4 hover:shadow-md transition">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${n.color}">
+                <i data-lucide="${n.icon}" class="w-6 h-6"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-start justify-between mb-1">
+                  <h3 class="font-semibold text-gray-900">${n.title}</h3>
+                  <span class="text-xs text-gray-500 whitespace-nowrap ml-2">${n.time}</span>
+                </div>
+                <p class="text-sm text-gray-600 leading-relaxed">${n.message}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        document.getElementById('notifications-list').innerHTML = html;
+      }
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
